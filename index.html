@@ -1,0 +1,59 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d18"><link rel="manifest" href="manifest.webmanifest">
+<title>ETH SCALP AI</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080d18;color:#eef3ff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+main{max-width:520px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center}
+h1{font-size:21px;margin:3px 0}.muted{color:#8290aa;font-size:11px}.pill{border:1px solid #293650;border-radius:18px;padding:6px 9px;font-size:10px}
+.price{font-size:34px;font-weight:800;margin-top:18px}.chg{color:#58d68d;font-size:12px}.tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:14px 0}
+button{border:1px solid #293650;background:#111827;color:#9ba8c0;border-radius:8px;padding:8px 2px;font-size:11px}.on{background:#29406c;color:white}
+.card{background:#101727;border:1px solid #1d2940;border-radius:14px;padding:13px;margin:10px 0}.row{display:flex;justify-content:space-between}
+.signal{font-size:28px;font-weight:850}.wait{color:#f5c75b}.long{color:#58d68d}.short{color:#ff7181}.big{font-size:19px;font-weight:750}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.mini{background:#0c1322;border-radius:9px;padding:10px}.mini b{display:block;margin-top:4px}
+canvas{width:100%;height:220px;background:#0b1120;border-radius:10px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.box{background:#0c1322;border-radius:9px;padding:10px}.label{font-size:10px;color:#7f8ca4}.val{font-size:15px;font-weight:700;margin-top:4px}
+.notice{font-size:11px;line-height:1.5;color:#aeb8ca}.event{padding:9px 0;border-bottom:1px solid #202b40}.event:last-child{border:0}
+</style></head><body><main>
+<div class="top"><div><h1>ETH SCALP AI</h1><div class="muted">5m · 10m 중심 단기매매 참고용</div></div><span class="pill">DEMO · LIVE 준비</span></div>
+<div class="price" id="price">$2,520.32</div><div class="chg" id="chg">+0.00% · simulated</div>
+<div class="tabs">
+<button class="on" data-t="5m">5m</button><button data-t="10m">10m</button><button data-t="15m">15m</button><button data-t="30m">30m</button><button data-t="1h">1h</button><button data-t="4h">4h</button>
+</div>
+<div class="card"><div class="row"><div><div class="muted">현재 판단</div><div id="sig" class="signal wait">WAIT</div></div><div style="text-align:right"><div class="muted">신뢰도</div><div id="conf" class="big">62%</div></div></div>
+<div class="grid"><div class="mini"><span class="muted">상승</span><b id="up">54%</b></div><div class="mini"><span class="muted">횡보</span><b id="flat">28%</b></div><div class="mini"><span class="muted">하락</span><b id="down">18%</b></div></div></div>
+<div class="card"><div class="row"><b>실제 가격 + 예상 경로</b><span class="muted" id="tf">5분</span></div><canvas id="c" width="900" height="420"></canvas>
+<p class="notice">예상선은 확률적 참고선입니다. 뉴스·거래량 급변 시 신뢰도를 낮추도록 설계합니다.</p></div>
+<div class="card"><b>단기 매매 시나리오</b><div class="actions">
+<div class="box"><div class="label">진입 후보</div><div class="val" id="entry">-</div></div><div class="box"><div class="label">손절 기준</div><div class="val" id="sl">-</div></div>
+<div class="box"><div class="label">TP1</div><div class="val" id="tp1">-</div></div><div class="box"><div class="label">TP2</div><div class="val" id="tp2">-</div></div></div></div>
+<div class="card"><b>시장 동조 지표</b><div class="grid">
+<div class="mini"><span class="muted">BTC</span><b>$78,240</b></div><div class="mini"><span class="muted">NASDAQ F</span><b>-1.5%</b></div><div class="mini"><span class="muted">S&P F</span><b>-0.6%</b></div>
+<div class="mini"><span class="muted">DXY</span><b>97.8</b></div><div class="mini"><span class="muted">US10Y</span><b>4.27%</b></div><div class="mini"><span class="muted">Vol/OI</span><b>중간</b></div></div></div>
+<div class="card"><b>주요 일정</b><div class="event">9/16 미국 소매판매 · 한국 21:30</div><div class="event">9/17 FOMC 결과 · 한국 03:00</div><div class="event">9/17 FOMC 기자회견 · 약 03:30</div></div>
+<div class="card"><b>예측 정확도 기록</b><p class="notice">실시간 데이터 연결 후 예상 경로와 실제 가격을 비교해 누적 정확도를 계산합니다.</p></div>
+<p class="muted" style="text-align:center">자동매매가 아닌 의사결정 참고용 · DEMO 가격</p>
+</main>
+<script>
+let p=2520.32,t=0,arr=[],tf="5m";
+const names={"5m":"5분","10m":"10분","15m":"15분","30m":"30분","1h":"1시간","4h":"4시간"};
+document.querySelectorAll("button").forEach(b=>b.onclick=()=>{document.querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");tf=b.dataset.t;document.getElementById("tf").textContent=names[tf];draw()});
+function rnd(x){return(Math.random()-.5)*x}
+function draw(){
+ t++;p+=rnd(tf==="5m"?3.5:5);let bias=Math.sin(t/5)+rnd(.3),up=54+bias*7,down=18-bias*4,flat=100-up-down;
+ let sig=up-down>28?"LONG":down-up>28?"SHORT":"WAIT",q=id=>document.getElementById(id);
+ q("price").textContent="$"+p.toFixed(2);q("chg").textContent=((p-2520.32)/2520.32*100).toFixed(2)+"% · DEMO";
+ q("up").textContent=Math.round(up)+"%";q("flat").textContent=Math.round(flat)+"%";q("down").textContent=Math.round(down)+"%";
+ q("sig").textContent=sig;q("sig").className="signal "+(sig==="LONG"?"long":sig==="SHORT"?"short":"wait");q("conf").textContent=Math.round(55+Math.abs(up-down))+"%";
+ q("entry").textContent="$"+(p-5).toFixed(0)+"–$"+p.toFixed(0);q("sl").textContent="$"+(p-27).toFixed(0);q("tp1").textContent="$"+(p+25).toFixed(0);q("tp2").textContent="$"+(p+45).toFixed(0);
+ arr.push(p);if(arr.length>55)arr.shift();paint(up,down)
+}
+function paint(up,down){
+ let c=document.getElementById("c"),x=c.getContext("2d"),w=c.width,h=c.height;x.clearRect(0,0,w,h);
+ x.strokeStyle="#18243a";for(let i=1;i<5;i++){x.beginPath();x.moveTo(0,i*h/5);x.lineTo(w,i*h/5);x.stroke()}
+ let mn=Math.min(...arr)-35,mx=Math.max(...arr)+55,map=v=>h-35-(v-mn)/(mx-mn)*(h-55);
+ x.strokeStyle="#6c9cff";x.lineWidth=4;x.beginPath();arr.forEach((v,i)=>{let X=i*w/Math.max(arr.length-1,1);i?x.lineTo(X,map(v)):x.moveTo(X,map(v))});x.stroke();
+ let last=arr[arr.length-1],d=(up-down)/100*70;x.setLineDash([12,8]);x.strokeStyle="#b8c7e8";x.lineWidth=3;x.beginPath();x.moveTo(w-1,map(last));x.lineTo(w*.72,map(last+d*.35));x.lineTo(w*.88,map(last+d*.7));x.lineTo(w-1,map(last+d));x.stroke();x.setLineDash([])
+}
+draw();setInterval(draw,1800);
+</script></body></html>
